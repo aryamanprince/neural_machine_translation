@@ -48,7 +48,7 @@ The pre-attention decoder runs on the targets and creates activations that are
 used as queries in attention. This is a Serial network which is composed of the 
 following:
 ### • tl.ShiftRight: This pads a token to the beginning of your target tokens 
-(e.g. [8, 34, 12] shifted right is [0, 8, 34, 12]). This will act like a start-ofsentence token that will be the first input to the decoder. During training, 
+(e.g. [8, 34, 12] shifted right is [0, 8, 34, 12]). This will act like a start-of-sentence token that will be the first input to the decoder. During training, 
 this shift also allows the target tokens to be passed as input to do teacher 
 forcing.
 ### • tl.Embedding: Like in the previous function, this converts each token to 
