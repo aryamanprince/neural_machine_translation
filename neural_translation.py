@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+
 
 
 from termcolor import colored
@@ -18,7 +18,7 @@ import w1_unittest
 get_ipython().system('pip list | grep trax')
 
 
-# In[2]:
+
 
 
 train_stream_fn = trax.data.TFDS('opus/medical',
@@ -36,7 +36,7 @@ eval_stream_fn = trax.data.TFDS('opus/medical',
                                )
 
 
-# In[3]:
+
 
 
 train_stream = train_stream_fn()
@@ -47,7 +47,7 @@ eval_stream = eval_stream_fn()
 print(colored('eval data (en, de) tuple:', 'red'), next(eval_stream))
 
 
-# In[4]:
+
 
 
 # global variables that state the filename and directory of the vocabulary file
@@ -59,7 +59,7 @@ tokenized_train_stream = trax.data.Tokenize(vocab_file=VOCAB_FILE, vocab_dir=VOC
 tokenized_eval_stream = trax.data.Tokenize(vocab_file=VOCAB_FILE, vocab_dir=VOCAB_DIR)(eval_stream)
 
 
-# In[5]:
+
 
 
 # Append EOS at the end of each sentence.
@@ -81,7 +81,7 @@ tokenized_train_stream = append_eos(tokenized_train_stream)
 tokenized_eval_stream = append_eos(tokenized_eval_stream)
 
 
-# In[6]:
+
 
 
 # Filter too long sentences to not run out of memory.
@@ -98,7 +98,7 @@ print(colored(f'Single tokenized example input:', 'red' ), train_input)
 print(colored(f'Single tokenized example target:', 'red'), train_target)
 
 
-# In[7]:
+
 
 
 # Setup helper functions for tokenizing and detokenizing sentences
@@ -137,7 +137,7 @@ def detokenize(integers, vocab_file=None, vocab_dir=None):
     return trax.data.detokenize(integers, vocab_file=vocab_file, vocab_dir=vocab_dir)
 
 
-# In[8]:
+
 
 
 # As declared earlier:
@@ -155,7 +155,7 @@ print(colored(f"tokenize('hello'): ", 'green'), tokenize('hello', vocab_file=VOC
 print(colored(f"detokenize([17332, 140, 1]): ", 'green'), detokenize([17332, 140, 1], vocab_file=VOCAB_FILE, vocab_dir=VOCAB_DIR))
 
 
-# In[9]:
+
 
 
 
@@ -178,7 +178,7 @@ train_batch_stream = trax.data.AddLossWeights(id_to_mask=0)(train_batch_stream)
 eval_batch_stream = trax.data.AddLossWeights(id_to_mask=0)(eval_batch_stream)
 
 
-# In[10]:
+
 
 
 input_batch, target_batch, mask_batch = next(train_batch_stream)
@@ -192,7 +192,7 @@ print("input_batch shape: ", input_batch.shape)
 print("target_batch shape: ", target_batch.shape)
 
 
-# In[11]:
+
 
 
 # pick a random index less than the batch size.
@@ -205,7 +205,7 @@ print(colored('THIS IS THE GERMAN TRANSLATION: \n', 'red'), detokenize(target_ba
 print(colored('THIS IS THE TOKENIZED VERSION OF THE GERMAN TRANSLATION: \n', 'red'), target_batch[index], '\n')
 
 
-# In[12]:
+
 
 
 # UNQ_C1
@@ -227,7 +227,7 @@ def input_encoder_fn(input_vocab_size, d_model, n_encoder_layers):
     return input_encoder
 
 
-# In[13]:
+
 
 
 # UNQ_C2
@@ -253,7 +253,7 @@ def pre_attention_decoder_fn(mode, target_vocab_size, d_model):
     return pre_attention_decoder
 
 
-# In[14]:
+
 
 
 # UNQ_C3
@@ -284,7 +284,7 @@ def prepare_attention_input(encoder_activations, decoder_activations, inputs):
     return queries, keys, values, mask
 
 
-# In[15]:
+
 
 
 # UNQ_C4
@@ -337,7 +337,7 @@ def NMTAttn(input_vocab_size=33300,
     return model
 
 
-# In[16]:
+
 
 
 # print your model
@@ -345,7 +345,6 @@ model = NMTAttn()
 print(model)
 
 
-# In[17]:
 
 
 # UNQ_C5
@@ -376,13 +375,13 @@ def train_task_function(train_batch_stream):
     )
 
 
-# In[18]:
+
 
 
 train_task = train_task_function(train_batch_stream)
 
 
-# In[19]:
+
 
 
 eval_task = training.EvalTask(
@@ -395,7 +394,7 @@ eval_task = training.EvalTask(
 )
 
 
-# In[82]:
+
 
 
 # define the output directory
@@ -411,14 +410,14 @@ training_loop = training.Loop(NMTAttn(mode='train'),
                               output_dir=output_dir)
 
 
-# In[83]:
+
 
 
 # NOTE: Execute the training loop. This will take around 11 minutes to complete.
 training_loop.run(10)
 
 
-# In[20]:
+
 
 
 # instantiate the model we built in eval mode
@@ -429,7 +428,6 @@ model.init_from_file("model.pkl.gz", weights_only=True)
 model = tl.Accelerate(model)
 
 
-# In[21]:
 
 
 # UNQ_C6
@@ -465,7 +463,7 @@ def next_symbol(NMTAttn, input_tokens, cur_output_tokens, temperature):
     return symbol, float(log_probs[symbol])
 
 
-# In[23]:
+
 
 
 # UNQ_C7
@@ -500,13 +498,10 @@ def sampling_decode(input_sentence, NMTAttn = None, temperature=0.0, vocab_file=
     return cur_output_tokens, log_prob, sentence
 
 
-# In[24]:
 
 
 sampling_decode("I love languages.", NMTAttn=model, temperature=0.0, vocab_file=VOCAB_FILE, vocab_dir=VOCAB_DIR)
 
-
-# In[26]:
 
 
 def greedy_decode_test(sentence, NMTAttn=None, vocab_file=None, vocab_dir=None, sampling_decode=sampling_decode, next_symbol=next_symbol, tokenize=tokenize, detokenize=detokenize):
@@ -519,7 +514,7 @@ def greedy_decode_test(sentence, NMTAttn=None, vocab_file=None, vocab_dir=None, 
     return translated_sentence
 
 
-# In[27]:
+
 
 
 # put a custom string here
@@ -528,13 +523,12 @@ your_sentence = 'I am hungry'
 greedy_decode_test(your_sentence, NMTAttn=model, vocab_file=VOCAB_FILE, vocab_dir=VOCAB_DIR);
 
 
-# In[28]:
+
 
 
 greedy_decode_test('You are almost done with the assignment!', model, vocab_file=VOCAB_FILE, vocab_dir=VOCAB_DIR);
 
 
-# In[29]:
 
 
 def generate_samples(sentence, n_samples, NMTAttn=None, temperature=0.6, vocab_file=None, vocab_dir=None, sampling_decode=sampling_decode, next_symbol=next_symbol, tokenize=tokenize, detokenize=detokenize):
@@ -557,14 +551,14 @@ def generate_samples(sentence, n_samples, NMTAttn=None, temperature=0.6, vocab_f
     return samples, log_probs
 
 
-# In[30]:
+
 
 
 # generate 4 samples with the default temperature (0.6)
 generate_samples('how are you today?', 4, model, vocab_file=VOCAB_FILE, vocab_dir=VOCAB_DIR)
 
 
-# In[31]:
+
 
 
 def jaccard_similarity(candidate, reference):
@@ -584,14 +578,13 @@ def jaccard_similarity(candidate, reference):
     return overlap
 
 
-# In[32]:
+
 
 
 # let's try using the function. remember the result here and compare with the next function below.
 jaccard_similarity([1, 2, 3], [1, 2, 3, 4])
 
 
-# In[34]:
 
 
 # UNQ_C8
@@ -638,22 +631,14 @@ def rouge1_similarity(system, reference):
     return rouge1_score
 
 
-# In[35]:
 
 
 # notice that this produces a different value from the jaccard similarity earlier
 rouge1_similarity([1, 2, 3], [1, 2, 3, 4])
 
 
-# In[36]:
 
 
-# UNIT TEST
-# test rouge1_similarity
-w1_unittest.test_rouge1_similarity(rouge1_similarity)
-
-
-# In[37]:
 
 
 # UNQ_C9
@@ -694,13 +679,12 @@ def average_overlap(similarity_fn, samples, *ignore_params):
     return scores
 
 
-# In[38]:
 
 
 average_overlap(jaccard_similarity, [[1, 2, 3], [1, 2, 4], [1, 2, 4, 5]], [0.4, 0.2, 0.5])
 
 
-# In[39]:
+
 
 
 # UNIT TEST
@@ -708,7 +692,7 @@ average_overlap(jaccard_similarity, [[1, 2, 3], [1, 2, 4], [1, 2, 4, 5]], [0.4, 
 w1_unittest.test_average_overlap(average_overlap, rouge1_similarity)
 
 
-# In[40]:
+
 
 
 def weighted_avg_overlap(similarity_fn, samples, log_probs):
@@ -750,13 +734,11 @@ def weighted_avg_overlap(similarity_fn, samples, log_probs):
     return scores
 
 
-# In[41]:
 
 
 weighted_avg_overlap(jaccard_similarity, [[1, 2, 3], [1, 2, 4], [1, 2, 4, 5]], [0.4, 0.2, 0.5])
 
 
-# In[42]:
 
 
 # UNQ_C10
@@ -782,8 +764,6 @@ def mbr_decode(sentence, n_samples, score_fn, similarity_fn, NMTAttn=None, tempe
     return (translated_sentence, max_score_key, scores)
 
 
-# In[43]:
-
 
 TEMPERATURE = 1.0
 
@@ -791,19 +771,18 @@ TEMPERATURE = 1.0
 your_sentence = 'She speaks English and German.'
 
 
-# In[44]:
+
 
 
 mbr_decode(your_sentence, 4, weighted_avg_overlap, jaccard_similarity, model, TEMPERATURE, vocab_file=VOCAB_FILE, vocab_dir=VOCAB_DIR)[0]
 
 
-# In[50]:
 
 
 mbr_decode('German is useful language to learn', 4, average_overlap, rouge1_similarity, model, TEMPERATURE, vocab_file=VOCAB_FILE, vocab_dir=VOCAB_DIR)[0]
 
 
-# In[45]:
+
 
 
 mbr_decode('My name is Ironman', 4, average_overlap, rouge1_similarity, model, 0.6, vocab_file=VOCAB_FILE, vocab_dir=VOCAB_DIR)[0]
